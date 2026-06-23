@@ -1,0 +1,36 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environment / secrets (keep .env.example, ignore real env files)
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+
+# Node / frontend build
+node_modules/
+dist/
+
+# Archives
+*.zip
+
+# Python build / type-check caches
+.mypy_cache/
+*.egg-info/
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/

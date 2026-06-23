@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI-FL reviewer input needed — {{ cdets_id }}</title>
+  </head>
+  <body style="margin:0; padding:0; background:#f1f5f9; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#0f172a;">
+    <!-- preheader (hidden) -->
+    <div style="display:none; max-height:0; overflow:hidden; opacity:0;">
+      {{ cdets_id }} scored {{ "%.0f"|format(cdet_ai_score) }}/100 — please supply the missing details so the pipeline can finish.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f5f9; padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(15,23,42,0.06);">
+
+            <!-- Header bar -->
+            <tr>
+              <td style="background:linear-gradient(90deg,#1d4ed8 0%,#2563eb 50%,#3b82f6 100%); padding:18px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="color:#ffffff; font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;">
+                      AI-FL &middot; IOS-XR Feedback Loop
+                    </td>
+                    <td align="right" style="color:#dbeafe; font-size:11px; font-weight:500;">
+                      Reviewer input required
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Title row + score badge -->
+            <tr>
+              <td style="padding:28px 28px 12px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td valign="top">
+                      <div style="font-size:11px; color:#64748b; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">
+                        Defect
+                      </div>
+                      <div style="font-size:22px; font-weight:700; color:#0f172a; margin-top:4px;">
+                        {{ cdets_id }}
+                      </div>
+                      {% if headline %}
+                        <div style="font-size:13px; color:#334155; margin-top:6px; line-height:1.4;">
+                          {{ headline }}
+                        </div>
+                      {% endif %}
+                    </td>
+                    <td valign="top" align="right" width="120">
+                      <div style="display:inline-block; padding:10px 16px; background:#fff7ed; border:1px solid #fdba74; border-radius:8px; text-align:center;">
+                        <div style="font-size:10px; color:#9a3412; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;">
+                          AI-FL Score
+                        </div>
+                        <div style="font-size:28px; font-weight:800; color:#c2410c; line-height:1.1; margin-top:2px;">
+                          {{ "%.0f"|format(cdet_ai_score) }}
+                        </div>
+                        <div style="font-size:10px; color:#9a3412; margin-top:2px;">
+                          threshold {{ score_threshold }}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Summary -->
+            {% if summary_for_reviewer %}
+            <tr>
+              <td style="padding:0 28px 16px 28px;">
+                <div style="font-size:13px; line-height:1.55; color:#334155; padding:14px 16px; background:#f8fafc; border-left:3px solid #2563eb; border-radius:4px;">
+                  {{ summary_for_reviewer }}
+                </div>
+              </td>
+            </tr>
+            {% endif %}
+
+            <!-- CTA -->
+            <tr>
+              <td align="center" style="padding:4px 28px 24px 28px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background:#2563eb; border-radius:8px;">
+                      <a href="{{ review_url }}"
+                         style="display:inline-block; padding:12px 28px; font-size:14px; font-weight:600;
+                                color:#ffffff; text-decoration:none; letter-spacing:0.01em;">
+                        Open reviewer form &rarr;
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <div style="font-size:11px; color:#94a3b8; margin-top:10px;">
+                  Or paste this link into your browser:
+                </div>
+                <div style="font-size:11px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:#475569; word-break:break-all; margin-top:2px;">
+                  <a href="{{ review_url }}" style="color:#475569; text-decoration:underline;">{{ review_url }}</a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Missing fields -->
+            {% if missing_fields %}
+            <tr>
+              <td style="padding:0 28px 8px 28px;">
+                <div style="font-size:11px; color:#1e293b; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
+                  What we need ({{ missing_fields|length }})
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 4px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                  {% for f in missing_fields %}
+                    <tr>
+                      <td style="padding:12px 0; {% if not loop.last %}border-bottom:1px solid #f1f5f9;{% endif %} vertical-align:top;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td style="vertical-align:top;">
+                              <div style="font-size:13px; font-weight:600; color:#0f172a;">
+                                {{ f.label or f.field }}
+                              </div>
+                              {% if f.why_needed %}
+                                <div style="font-size:12px; color:#475569; line-height:1.5; margin-top:4px;">
+                                  {{ f.why_needed }}
+                                </div>
+                              {% endif %}
+                              {% if f.example %}
+                                <div style="font-size:11px; color:#64748b; margin-top:4px;">
+                                  <span style="color:#94a3b8;">e.g.</span> <em>{{ f.example }}</em>
+                                </div>
+                              {% endif %}
+                            </td>
+                            <td align="right" valign="top" style="padding-left:12px;">
+                              <code style="display:inline-block; font-size:10px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:#1e40af; background:#eff6ff; padding:3px 7px; border-radius:3px; white-space:nowrap;">
+                                {{ f.field }}
+                              </code>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </td>
+            </tr>
+            {% endif %}
+
+            <!-- Clarifying questions -->
+            {% if free_form_questions %}
+            <tr>
+              <td style="padding:16px 28px 4px 28px;">
+                <div style="font-size:11px; color:#1e293b; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
+                  Clarifying questions
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:4px 28px 16px 28px;">
+                <ol style="margin:8px 0 0 18px; padding:0; font-size:13px; color:#334155; line-height:1.55;">
+                  {% for q in free_form_questions %}
+                    <li style="margin:4px 0;">{{ q }}</li>
+                  {% endfor %}
+                </ol>
+              </td>
+            </tr>
+            {% endif %}
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:20px 28px 24px 28px; background:#f8fafc; border-top:1px solid #e2e8f0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="font-size:11px; color:#64748b; line-height:1.5;">
+                      Pipeline job <code style="font-family:ui-monospace, Menlo, monospace; color:#475569;">{{ job_id }}</code><br/>
+                      Sent by AI-FL on behalf of
+                      <a href="mailto:{{ from_address }}" style="color:#2563eb; text-decoration:none;">{{ from_address }}</a>
+                    </td>
+                    <td align="right" style="font-size:10px; color:#94a3b8; letter-spacing:0.06em; text-transform:uppercase;">
+                      Cisco &middot; IOS-XR
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+          </table>
+
+          <div style="font-size:10px; color:#94a3b8; margin-top:14px;">
+            This is an automated message. Replies will reach
+            <a href="mailto:{{ from_address }}" style="color:#94a3b8;">{{ from_address }}</a>.
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

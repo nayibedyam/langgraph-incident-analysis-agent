@@ -1,0 +1,62 @@
+{
+ "_meta": {
+  "description": "Pre-built AP/SubAP lookup index for FL Agent. Generated from AP blueprints. Read once, cache for entire run. NOTE: this is a small placeholder sample — replace with your own AP/SubAP index.",
+  "total_aps": 3,
+  "total_subaps": 6,
+  "source": "/path/to/blueprints/*/<ap_folder>_metadata.md",
+  "generator": "scripts/generate_ap_subap_index.py"
+ },
+ "aps": {
+  "AAA": {
+   "folder": "aaa",
+   "topology_types": [
+    "PP"
+   ],
+   "subap_count": 2,
+   "subaps": {
+    "Tacacs": {
+     "topology": "PP",
+     "script": "aaa/aaa_tacacs/aaa_tacacs_ap.py"
+    },
+    "Radius": {
+     "topology": "PP",
+     "script": "aaa/aaa_radius/aaa_radius_ap.py"
+    }
+   }
+  },
+  "Security": {
+   "folder": "security",
+   "topology_types": [
+    "PP"
+   ],
+   "subap_count": 2,
+   "subaps": {
+    "MACsec": {
+     "topology": "PP",
+     "script": "security/macsec/macsec_ap.py"
+    },
+    "IPsec": {
+     "topology": "PP",
+     "script": "security/ipsec/ipsec_ap.py"
+    }
+   }
+  },
+  "MPLS": {
+   "folder": "mpls",
+   "topology_types": [
+    "PP"
+   ],
+   "subap_count": 2,
+   "subaps": {
+    "LDP": {
+     "topology": "PP",
+     "script": "mpls/mpls_ldp/mpls_ldp_ap.py"
+    },
+    "RSVP-TE": {
+     "topology": "PP",
+     "script": "mpls/mpls_te/mpls_te_ap.py"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,50 @@
+# Core orchestration
+langgraph>=0.2.0
+langgraph-checkpoint-sqlite>=2.0.0
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+
+# LLM provider
+openai>=1.40.0
+
+# Optional: AWS Bedrock provider (Claude via Converse API)
+langchain-aws>=1.6.0
+boto3>=1.40.0
+
+# Storage
+pymongo>=4.6.0
+
+# RAG retrieval (local TF-IDF index over the bug-list corpus)
+scikit-learn>=1.3.0
+scipy>=1.10.0
+joblib>=1.3.0
+
+# Templates
+jinja2>=3.1.0
+
+# Observability — optional Arize Phoenix tracing (local, no account needed).
+# Captures every LangGraph node + LLM call as OpenTelemetry spans.
+# Enable at runtime with `--trace` or PHOENIX_TRACING=1.
+arize-phoenix>=4.0.0
+openinference-instrumentation-langchain>=0.1.0
+
+# Config
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# CLI
+click>=8.1.0
+
+# Async
+aiofiles>=23.0.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-mock>=3.12.0
+
+# Web console (fl_console backend)
+fastapi>=0.115.0
+uvicorn>=0.30.0
+sse-starlette>=2.1.0

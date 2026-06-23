@@ -1,0 +1,138 @@
+# FL LangGraph Agent — runtime configuration
+# Environment variables override these values where indicated.
+
+# LLM provider selection. Set FL_LLM_PROVIDER=bedrock (or provider: bedrock) to
+# route all stages through AWS Bedrock (Claude) instead of the Azure/gateway
+# gateway. Defaults to azure.
+llm:
+  provider: ${FL_LLM_PROVIDER:-azure}
+  bedrock:
+    region: ${AWS_REGION:-us-west-2}
+    # Haiku 4.5 is ~2.2x faster than Sonnet on this pipeline and preserves
+    # result quality (READY-FOR-AUTOMATION scorecards). Override per stage via
+    # `models` below, or globally with BEDROCK_MODEL.
+    model: ${BEDROCK_MODEL:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+    temperature: 0.1
+    # Heavy stages emit large JSON artifacts as tool-call arguments; a small
+    # cap truncates them mid-write and the agent loops. Keep this generous.
+    max_tokens: ${BEDROCK_MAX_TOKENS:-16000}
+    # Read timeout (seconds) for a single Converse call. Large generations can
+    # run well past botocore's 60s default, so keep this high.
+    request_timeout: ${BEDROCK_READ_TIMEOUT:-600}
+    # Per-stage model overrides. Bump any stage to Sonnet for deeper reasoning
+    # at the cost of latency, e.g. testcase: global.anthropic.claude-sonnet-4-6
+    models:
+      default: ${BEDROCK_MODEL:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+      schema: ${BEDROCK_MODEL_SCHEMA:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+      scoring: ${BEDROCK_MODEL_SCORING:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+      rca: ${BEDROCK_MODEL_RCA:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+      testcase: ${BEDROCK_MODEL_TESTCASE:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+      coverage: ${BEDROCK_MODEL_COVERAGE:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+      email: ${BEDROCK_MODEL_EMAIL:-us.anthropic.claude-haiku-4-5-20251001-v1:0}
+    # UI-selectable aliases for the per-run model picker (console "Run with…").
+    # The console runner resolves the alias the UI sends (sonnet/opus) to a
+    # Bedrock model ID and applies it to every stage of that one job.
+    model_aliases:
+      sonnet: ${ANTHROPIC_SONNET_MODEL:-us.anthropic.claude-sonnet-4-5-20250929-v1:0}
+      opus: ${ANTHROPIC_MODEL:-global.anthropic.claude-opus-4-6-v1}
+
+azure_openai:
+  # LLM gateway endpoint. Override via AZURE_OPENAI_ENDPOINT if needed.
+  endpoint: ${AZURE_OPENAI_ENDPOINT:-https://your-llm-gateway.example.com}
+  api_version: ${AZURE_OPENAI_API_VERSION:-2025-04-01-preview}
+  # `deployments` values are model names passed to the gateway API
+  # (e.g. gpt-4.1, gpt-4o, gpt-4o-mini).
+  deployments:
+    default: ${AZURE_OPENAI_DEPLOYMENT:-gpt-5-nano}
+    scoring: ${AZURE_OPENAI_DEPLOYMENT_SCORING:-gpt-5-nano}
+    email: ${AZURE_OPENAI_DEPLOYMENT_EMAIL:-gpt-5-nano}
+  temperature: 0.1
+  max_tokens: 100000
+  reasoning_effort: high
+  request_timeout: 300
+
+mongodb:
+  uri: ${MONGO_URI:-mongodb://<user>:<password>@<host>:27017/?authSource=admin}
+  database: cdetDB
+  collection: orders
+  performance_collection: agent_performance
+
+tftp:
+  root: /path/to/cdets_feedback
+
+email:
+  enabled: true
+  # Transport: 'sendmail' (local /usr/sbin/sendmail, no SMTP service needed) or
+  # 'smtp' (network relay). HITL reviewer emails reuse these settings.
+  transport: ${EMAIL_TRANSPORT:-sendmail}
+  sendmail_path: ${SENDMAIL_PATH:-/usr/sbin/sendmail}
+  smtp_host: ${SMTP_HOST:-localhost}
+  smtp_port: ${SMTP_PORT:-25}
+  from_address: ${EMAIL_FROM:-fl-agent@example.com}
+  cc: []
+  include_ap_owner: true
+  template_dir: pipeline/templates
+
+cdets:
+  dumpcr_bin: /path/to/dumpcr
+  cbugval_bin: /path/to/cbugval
+  timeout: 20
+  retries: 2
+
+cafy:
+  ap_root: ${FL_CAFY_AP_ROOT:-/path/to/cafy/work-dir}
+
+blueprints:
+  root: ${FL_BLUEPRINT_ROOT:-/path/to/blueprints}
+
+paths:
+  artifact_base: cdets_data
+  ap_csv: config/comp_ap_dtpt_mgr_mapping.csv
+  ap_index: config/ap_subap_index.json
+  schema_template: pipeline/schemas/Defect_Schema_Template_v1.0.json
+
+# RAG retrieval over the historical bug-list corpus. The gateway appkey is
+# scoped to gpt-5-nano chat only (embeddings deployments return 401), so the
+# index uses a local TF-IDF vector space instead of a hosted embedding model.
+rag:
+  corpus_csv: ${FL_RAG_CORPUS_CSV:-/path/to/bug_list.csv}
+  index_dir: ${FL_RAG_INDEX_DIR:-cdets_data/rag_index}
+  id_column: Identifier
+  top_k: 5
+  # When the best related-CDETS similarity is >= this threshold, the input bug
+  # is treated as a likely duplicate: the pipeline emits the top-k matches and
+  # short-circuits (skips schema/scoring/RCA/testcase/coverage stages).
+  enabled: true
+  high_match_threshold: ${FL_RAG_HIGH_MATCH_THRESHOLD:-0.45}
+  text_columns:
+    - description
+    - eng_notes
+    - scrub_notes
+    - release_notes
+    - cfd_analysis
+    - regression_analysis
+
+batch:
+  max_parallel: 5
+  rate_limit_rpm: 60
+
+# Human-in-the-loop review. When enabled, a defect whose cdets_scoring
+# `cdet_ai_score` falls below `score_threshold` detours through
+# missing_info_request -> human_review (pauses the run) -> merge_human_input,
+# then re-analyzes. Only runs driven by the console (which carry a job_id and
+# a checkpointer) can pause; CLI/batch/analyze runs ignore HITL.
+human_in_loop:
+  enabled: ${FL_HITL_ENABLED:-true}
+  score_threshold: ${FL_HITL_SCORE_THRESHOLD:-60}
+  max_review_rounds: ${FL_HITL_MAX_ROUNDS:-1}
+  # Base URL the reviewer email links back to (the console frontend).
+  review_url_base: ${FL_HITL_REVIEW_URL_BASE:-http://localhost:3100}
+  # Reviewer recipients for the "input needed" email. Empty = no email sent
+  # (the request is still written to disk and surfaced in the UI).
+  recipients:
+    - user@example.com
+    - reviewer@example.com
+
+dashboard:
+  url: ${DASHBOARD_URL:-http://your-dashboard-host:3005}
+  post_performance: true

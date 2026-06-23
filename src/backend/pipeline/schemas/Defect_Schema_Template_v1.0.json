@@ -1,0 +1,1139 @@
+{
+  "schema_version": "1.1",
+  "template_name": "IOS-XR_Feedback_Loop_Defect_Intake",
+  "meta": {
+    "source_system": {
+      "type": "BUG_TRACKER",
+      "name": "",
+      "issue_id": "",
+      "issue_url": ""
+    },
+    "created_at_utc": "",
+    "last_updated_at_utc": "",
+    "owner_team": "",
+    "DTPT-manager": "",
+    "submitter": {
+      "name": "",
+      "email": "",
+      "team": ""
+    }
+  },
+  "qualification_gate": {
+    "ai_eligible": false,
+    "completion_status": "INCOMPLETE",
+    "missing_required_fields": [],
+    "blockers": [],
+    "notes": ""
+  },
+  "defect_score": {
+    "method": "confidence_weighted_quality_v3",
+    "required_fields": {
+      "total": 12,
+      "filled": 0,
+      "percent": 0
+    },
+    "weighted": {
+      "total_applicable": 38,
+      "earned": 0,
+      "raw_percent": 0,
+      "consistency_penalty_percent": 0,
+      "final_percent": 0
+    },
+    "field_quality": {
+      "description": "Per-field quality assessment. Each scored field receives a quality grade that multiplies with its weight and confidence factor.",
+      "quality_levels": {
+        "0":    "MISSING — null / empty / UNKNOWN / empty array or object",
+        "0.5":  "LOW_SPECIFICITY — present but generic (fewer than 3 meaningful tokens, no concrete values, or only boilerplate text)",
+        "0.75": "ASSERTED_NEGATIVE — negation or absence value (e.g. traffic=NO, soak=NO, physical_intervention=NO) without explicit submitter rationale; cap for negative/default answers",
+        "1.0":  "ACTIONABLE — present with specific, reproducible detail AND backed by a citable CDETS source (description line, comment, field value, or attachment reference)"
+      },
+      "field_scores": {}
+    },
+    "field_confidence": {
+      "description": "Per-field extraction confidence. Algorithmically assigned based on data source. Directly multiplies into the score via confidence_factor.",
+      "confidence_levels": {
+        "HIGH":   "Populated from structured CDETS metadata (enum, dropdown, fixed-format field)",
+        "MEDIUM": "Populated from free-text analysis of CDETS description, comments, or scrubber notes",
+        "LOW":    "Inferred from attachment analysis (logs, CLI output, pcaps, traces) or LLM default assumption"
+      },
+      "confidence_factors": {
+        "HIGH":   1.0,
+        "MEDIUM": 0.8,
+        "LOW":    0.5
+      },
+      "field_confidences": {}
+    },
+    "field_evidence": {
+      "description": "Per-field citation anchor. Quality=1.0 requires a non-empty citation. If the agent cannot cite a specific CDETS source, quality is capped at 0.5 regardless of how specific the value looks.",
+      "citations": {}
+    },
+    "cross_field_consistency": {
+      "description": "Cross-field derivation signals. These are zero-penalty investigation signals — the agent derives correct values from CDETS evidence (description, comments, enclosures, logs, show commands) and feeds them into test case design. No score deductions.",
+      "max_penalty_percent": 0,
+      "derivation_signals": [
+        {
+          "id": "TRAFFIC_DERIVATION",
+          "purpose": "Derive whether data-plane traffic is required from CDETS evidence",
+          "fields": ["defect.repro.traffic.required", "defect.failure.category"],
+          "penalty_percent": 0,
+          "derivation_guide": "Read description, enclosure logs, show commands for traffic/forwarding/counter/TG references. Distinguish data-plane TG traffic from control-plane protocol traffic. Derived value feeds into test case Step F.3 traffic plan."
+        },
+        {
+          "id": "SOAK_DERIVATION",
+          "purpose": "Derive whether soak/longevity testing is required from CDETS evidence",
+          "fields": ["defect.repro.reproducibility.value", "defect.repro.soak.required"],
+          "penalty_percent": 0,
+          "derivation_guide": "Read description for time references (after Nhrs, over days, gradual). Check enclosure logs for timestamps, memory trends, leak-rates. Failure categories Memory Leaks, CPU Hog, Performance Degradation often imply soak. Derived value feeds into test case Step F.5 duration."
+        },
+        {
+          "id": "PHYSICAL_INTERVENTION_DERIVATION",
+          "purpose": "Derive whether physical intervention (OIR, power cycle, cable pull) is required",
+          "fields": ["defect.dependencies.physical_intervention.required"],
+          "penalty_percent": 0,
+          "derivation_guide": "Read description and repro steps for OIR, pull, power cycle, hot swap, cable disconnect. Physical actions are usually explicit. Derived value feeds into test case Step F.9 automation feasibility."
+        },
+        {
+          "id": "SCOPE_DERIVATION",
+          "purpose": "Derive whether defect is single-feature or cross-feature interaction",
+          "fields": ["defect.component.feature_scope.type", "defect.ap_selection.related_aps"],
+          "penalty_percent": 0,
+          "derivation_guide": "Read description for multi-feature references. Check if related_aps represent genuine interaction or metadata hints. Derived value feeds into test case Step F.2 topology scope."
+        },
+        {
+          "id": "SEVERITY_PRIORITY_OBSERVATION",
+          "purpose": "Record severity and priority as-is from CDETS structured fields",
+          "fields": ["defect.behavior.impact.severity", "defect.behavior.impact.priority"],
+          "penalty_percent": 0,
+          "derivation_guide": "Triage/business signal. Recorded as-is, no derivation needed, no test case impact."
+        },
+        {
+          "id": "VERSION_FIXED_OBSERVATION",
+          "purpose": "Record version-fixed status as-is from CDETS",
+          "fields": ["meta.source_system.status", "defect.versions.fixed.release_train"],
+          "penalty_percent": 0,
+          "derivation_guide": "Process state field. Recorded as-is, no derivation needed, no test case impact."
+        }
+      ],
+      "violations_found": [],
+      "total_penalty_percent": 0
+    },
+    "score_value": 0,
+    "grade": "UNSCORED",
+    "status": "NOT_EVALUATED",
+    "scorecard_attachment": "",
+    "last_scored_at_utc": "",
+    "notes": ""
+  },
+  "dt_testability": {
+    "description": "DT Testability Alert — flags defects with SIT/CVT-class characteristics not testable by Dev Test (CaFy AP tests). Derived from the populated schema after analysis.",
+    "alert": false,
+    "alert_text": "",
+    "indicators": {
+      "customer_large_profile": {
+        "triggered": false,
+        "evidence": ""
+      },
+      "very_high_scale": {
+        "triggered": false,
+        "evidence": ""
+      },
+      "longevity_soak": {
+        "triggered": false,
+        "evidence": ""
+      },
+      "physical_intervention": {
+        "triggered": false,
+        "evidence": ""
+      },
+      "massive_trigger_volume": {
+        "triggered": false,
+        "evidence": ""
+      },
+      "race_condition_system_load": {
+        "triggered": false,
+        "evidence": ""
+      }
+    },
+    "triggered_count": 0,
+    "triggered_list": []
+  },
+  "tz_cross_validation": {
+    "description": "Techzone cross-validation results — separate from defect_score. Techzone NEVER modifies the CDETS defect quality score. This section feeds AI Confidence and Automation Readiness only.",
+    "available": false,
+    "outcome_definitions": {
+      "CONFIRMED": "Both CDETS and Techzone agree — AI Confidence = HIGH, automation-ready = true",
+      "ENRICHED": "Techzone adds detail without contradicting CDETS — AI Confidence = HIGH, automation-ready = true",
+      "CONTRADICTED": "CDETS and Techzone disagree — AI Confidence = LOW, automation-ready = false, flagged for review",
+      "TZ_ONLY": "Techzone has data but CDETS field was empty — AI Confidence = MEDIUM, automation-ready = conditional",
+      "TZ_SILENT": "Techzone has no relevant data for this field — no change"
+    },
+    "field_results": {},
+    "summary": {
+      "confirmed": 0,
+      "enriched": 0,
+      "contradicted": 0,
+      "tz_only": 0,
+      "tz_silent": 0
+    }
+  },
+  "automation_readiness": {
+    "description": "Whether enough evidence exists to write a reliable, automatable test case. Always computed from CDETS field quality × confidence. TZ cross-validation enriches when available but is NOT required.",
+    "method": "field_quality_x_confidence",
+    "per_field_rules": {
+      "ACTIONABLE+HIGH_or_MEDIUM": "YES",
+      "ACTIONABLE+LOW": "CONDITIONAL",
+      "ASSERTED_NEGATIVE+HIGH_or_MEDIUM": "YES",
+      "ASSERTED_NEGATIVE+LOW": "CONDITIONAL",
+      "LOW_SPECIFICITY+any": "NOT_READY",
+      "MISSING+any": "NOT_READY"
+    },
+    "tz_adjustment": "TZ CONFIRMED/ENRICHED upgrades CONDITIONAL→YES; TZ CONTRADICTED downgrades YES→NOT READY",
+    "field_readiness": {},
+    "fields_ready": 0,
+    "fields_conditional": 0,
+    "fields_not_ready": 0,
+    "verdict": null,
+    "verdict_thresholds": {
+      "READY FOR AUTOMATION": ">75% weighted fields automation-ready",
+      "AUTOMATABLE — REVIEW RECOMMENDED": "60-75% weighted fields automation-ready",
+      "NOT READY FOR AUTOMATION": "<60% weighted fields automation-ready"
+    }
+  },
+  "ai_confidence": {
+    "description": "How reliably the agent extracted, interpreted, and inferred each schema field. Always computed — base from CDETS extraction method, TZ cross-validation adjusts when available. Independent of CDETS defect quality score.",
+    "method": "weighted_extraction_confidence",
+    "extraction_values": {
+      "HIGH": 1.0,
+      "MEDIUM": 0.7,
+      "LOW": 0.4,
+      "NONE": 0.0
+    },
+    "extraction_definitions": {
+      "HIGH": "Structured CDETS metadata (enum, dropdown, fixed-format field)",
+      "MEDIUM": "Free-text analysis of CDETS description/comments, or TZ-only source",
+      "LOW": "Inferred from attachments, logs, or LLM assumption, or TZ-contradicted",
+      "NONE": "Field is MISSING — no data to interpret"
+    },
+    "tz_adjustments": {
+      "CONFIRMED": "Upgrade to HIGH (1.0)",
+      "ENRICHED": "Upgrade to at least MEDIUM (0.7)",
+      "CONTRADICTED": "Override to LOW (0.4)",
+      "TZ_ONLY": "Set to MEDIUM (0.7)",
+      "TZ_SILENT": "No change"
+    },
+    "formula": "sum(field_ai_confidence_value × field_weight) / sum(field_weight) × 100",
+    "grade_thresholds": {
+      "HIGH": ">=75%",
+      "MEDIUM": "50-74%",
+      "LOW": "<50%"
+    },
+    "field_confidences": {},
+    "fields_at_high": 0,
+    "fields_at_medium": 0,
+    "fields_at_low": 0,
+    "fields_at_none": 0,
+    "overall_percent": 0,
+    "overall_grade": "LOW"
+  },
+  "defect": {
+    "summary": "",
+    "component": {
+      "technology": {
+        "tags": [
+          {
+            "name": "",
+            "class": "PRIMARY",
+            "notes": ""
+          }
+        ],
+        "notes": ""
+      },
+      "feature_scope": {
+        "type": "SINGLE_FEATURE",
+        "details": ""
+      }
+    },
+    "platform": {
+      "family": "",
+      "pi_pd": {
+        "value": "PI",
+        "legend": {
+          "PI": "Platform Independent",
+          "PD": "Platform Dependent"
+        },
+        "rationale": ""
+      },
+      "architecture": "UNKNOWN",
+      "architecture_allowed_values": ["Fixed", "Centralised", "Distributed", "UNKNOWN"],
+      "architecture_rationale": "",
+      "architecture_deduction_rule": "Fixed: pure pizza-box / fixed-form platforms with no swappable hardware modules (e.g., NCS-540, NCS-5501-SE, NCS-5502 fixed); applicable reload scopes are Router and RP only. Centralised: fixed chassis with swappable Modular Port Adapters and an on-board Switch Card (e.g., NCS-560); applicable reload scopes are Router, RP, MPA (Modular Port Adapter), and SC (Switch Card). Distributed: multi-slot modular chassis with separate Route Processors, Line Cards, and Fabric Cards (e.g., ASR-9000 modular, NCS-5500 modular, NCS-6000); applicable reload scopes are Router, RP, LC (Line Card), and FC (Fabric Card).",
+      "topology": {
+        "scope": "SINGLE_ROUTER",
+        "details": "",
+        "pod_type": "",
+        "pod_type_allowed_values": ["PP", "F3", "F6"],
+        "pod_deduction_rule": "1 router = PP POD; 2-3 routers = F3 POD; >3 routers = F6 POD"
+      },
+      "hardware": {
+        "router_model": "",
+        "linecard_or_asic": ""
+      }
+    },
+    "repro": {
+      "reproducibility": {
+        "value": "ALWAYS",
+        "hit_rate_percent": null,
+        "notes": ""
+      },
+      "triggers": [
+        {
+          "name": "",
+          "details": "",
+          "attributes": {
+            "time_based": false,
+            "wait_time_seconds": null
+          }
+        }
+      ],
+      "soak": {
+        "required": false,
+        "time_to_manifest": {
+          "value": null,
+          "unit": "minutes"
+        },
+        "notes": ""
+      },
+      "traffic": {
+        "required": false,
+        "profile": {
+          "name": "IMIX",
+          "notes": ""
+        },
+        "attributes": {
+          "rate_type": "LINE_RATE",
+          "imix_profile": "",
+          "payload_type": "",
+          "ttl": null,
+          "packet_size_bytes": null
+        },
+        "notes": ""
+      }
+    },
+    "scale": {
+      "type": "ONE_DIMENSIONAL",
+      "dimensions": [
+        {
+          "name": "",
+          "value": "",
+          "unit": "",
+          "notes": ""
+        }
+      ],
+      "notes": ""
+    },
+    "behavior": {
+      "expected": "",
+      "actual": "",
+      "impact": {
+        "severity": "",
+        "priority": "",
+        "customer_visible": "UNKNOWN",
+        "notes": ""
+      }
+    },
+    "versions": {
+      "submitted": {
+        "release_train": "",
+        "build": "",
+        "image": "",
+        "first_found_version": "",
+        "notes": ""
+      },
+      "fixed": {
+        "release_train": "",
+        "build": "",
+        "fix_id_or_commit": "",
+        "to_be_fixed": "",
+        "notes": ""
+      },
+      "integrated": {
+        "release_train": ""
+      },
+      "verified": {
+        "release_train": ""
+      }
+    },
+    "recovery": {
+      "steps": [
+        {
+          "step": "",
+          "notes": ""
+        }
+      ],
+      "workaround": {
+        "available": "UNKNOWN",
+        "details": ""
+      }
+    },
+    "dependencies": {
+      "third_party_tools": {
+        "required": "UNKNOWN",
+        "tools": [
+          {
+            "name": "",
+            "version": "",
+            "purpose": ""
+          }
+        ]
+      },
+      "physical_intervention": {
+        "required": "UNKNOWN",
+        "actions": [
+          {
+            "name": "SFP_OIR",
+            "required": "UNKNOWN",
+            "notes": ""
+          }
+        ]
+      }
+    },
+    "failure": {
+      "category": "",
+      "details": "",
+      "attributes": {
+        "plane": "",
+        "timing_sensitive": "UNKNOWN",
+        "reload_scope": "",
+        "reload_scope_allowed_values_ref": "reference_data.controlled_enums.reload_scopes_v1.items[*].name",
+        "reload_scope_applicable_when": "failure.category == 'Router Reload'",
+        "reload_scope_validation_rule": "When failure.attributes.reload_scope is 'MPA' or 'SC', platform.architecture MUST be 'Centralised'. When reload_scope is 'LC' or 'FC', platform.architecture MUST be 'Distributed'. 'Router' and 'RP' are valid for all three architectures (Fixed, Centralised, Distributed)."
+      },
+      "category_allowed_values_ref": "reference_data.controlled_enums.failure_scenarios_v1.items",
+      "category_allowed_values": [
+        "Traffic Failure",
+        "Process Crash",
+        "Router Reload",
+        "Upgrade/Install Failure",
+        "Functional Failure",
+        "Performance/Throughput Degradation",
+        "Scale Failure",
+        "Accounting/Counter Inaccuracy",
+        "Telemetry Failure",
+        "Configuration Failure",
+        "State Corruption/Recovery Failure",
+        "Race Condition (H/W Programming Failure)",
+        "Interoperability Failure",
+        "SDK Failures",
+        "MGBL Management Failures",
+        "ASIC Errors",
+        "Traceback",
+        "Memory Leaks",
+        "CPU Hog"
+      ]
+    },
+    "rca_summary": {
+      "description": "Structured Root Cause Analysis summary extracted from CDETS notes, comments, Techzone debug threads, and failure details. Internal enrichment consumed by test case generation (Step F) — not pushed to dashboard.",
+      "available": false,
+      "root_cause_description": "",
+      "affected_code_area": "",
+      "fix_approach": "",
+      "vulnerable_conditions": [],
+      "inverse_trigger": "",
+      "confidence": "",
+      "confidence_allowed_values": ["HIGH", "MEDIUM", "LOW"],
+      "confidence_definitions": {
+        "HIGH": "Engineer explicitly stated RCA in CDETS notes or comments",
+        "MEDIUM": "RCA inferred from Techzone debug analysis or CDETS failure.details with specific mechanism",
+        "LOW": "RCA inferred from failure category + behavior mismatch without explicit engineer statement"
+      },
+      "sources": []
+    },
+    "ap_selection": {
+      "primary_ap": "",
+      "mapping_basis": "COMPONENT",
+      "mapping_evidence": {
+        "primary_technology_tag": "",
+        "other_technology_tags": []
+      },
+      "related_aps": [],
+      "notes": ""
+    },
+    "ap_extensions": {
+      "description": "AP-specific extensions. Only the selected primary_ap should be populated for a defect instance. AP owners may add AP-local areas/failure scenarios and additional structured fields here without modifying the global baseline.",
+      "primary_ap_extension": {
+        "ap_name": "",
+        "owner_team": "",
+        "additional_areas": [],
+        "additional_failure_scenarios": [],
+        "area_enrichments": {
+          "traffic_attributes": {},
+          "trigger_attributes": {},
+          "scale_dimensions": [],
+          "recovery_playbook": [],
+          "notes": ""
+        }
+      }
+    }
+  },
+  "evidence": {
+    "artifacts": [
+      {
+        "type": "LOG",
+        "location": "",
+        "time_range_utc": {
+          "start": "",
+          "end": ""
+        },
+        "notes": ""
+      }
+    ]
+  },
+  "required_fields_min_set": [
+    "defect.summary",
+    "defect.component.technology.tags[0].name",
+    "defect.component.feature_scope.type",
+    "defect.platform.family",
+    "defect.platform.pi_pd.value",
+    "defect.repro.reproducibility.value",
+    "defect.behavior.expected",
+    "defect.behavior.actual",
+    "defect.versions.submitted.release_train",
+    "defect.failure.category",
+    "defect.behavior.impact.severity",
+    "defect.behavior.impact.priority"
+  ],
+  "reference_data": {
+    "controlled_enums": {
+      "score_status_v1": {
+        "description": "Defect scoring lifecycle status",
+        "items": [
+          "NOT_EVALUATED",
+          "EVALUATED",
+          "FAILED_NON_BLOCKING",
+          "BLOCKED"
+        ]
+      },
+      "areas_v1": {
+        "description": "Canonical Areas list corresponding to generalized intake; the schema already contains fields for these areas. This list is a stable reference for UI/validators.",
+        "items": [
+          "Single Feature or Feature Interaction",
+          "Platform Independent or Platform Dependent",
+          "Single Router or Multi-Router",
+          "Traffic Required or Not Required (Line Rate/IMIX)",
+          "Triggers",
+          "Soak/Longevity",
+          "Scale (1D or MD)",
+          "Expected vs Actual Behavior",
+          "Physical Intervention Required",
+          "Third-Party Tools Required",
+          "Failure Category",
+          "Reproducibility",
+          "Component",
+          "Platform",
+          "Version Submitted (IOS-XR/SDK)",
+          "Steps to Recovery",
+          "Severity/Priority",
+          "Version Fixed (IOS-XR/SDK)"
+        ],
+        "mapping_note": "Use the user guide v2 for the canonical mapping of each area to schema paths."
+      },
+      "failure_scenarios_v1": {
+        "description": "Canonical failure scenario enum. Global list is stable; APs may add AP-local scenarios under their AP extension block without overriding this list. The legacy 'Router Crash/Reload' has been split into 'Process Crash' and 'Router Reload'; when 'Router Reload' is chosen, populate failure.attributes.reload_scope from reload_scopes_v1.",
+        "items": [
+          "Traffic Failure",
+          "Process Crash",
+          "Router Reload",
+          "Upgrade/Install Failure",
+          "Functional Failure",
+          "Performance/Throughput Degradation",
+          "Scale Failure",
+          "Accounting/Counter Inaccuracy",
+          "Telemetry Failure",
+          "Configuration Failure",
+          "State Corruption/Recovery Failure",
+          "Race Condition (H/W Programming Failure)",
+          "Interoperability Failure",
+          "SDK Failures",
+          "MGBL Management Failures",
+          "ASIC Errors",
+          "Traceback",
+          "Memory Leaks",
+          "CPU Hog"
+        ]
+      },
+      "reload_scopes_v1": {
+        "description": "Granular reload scope used when failure.category = 'Router Reload'. Platform-conditional: 'Router' (full chassis) and 'RP' (route processor) apply to all three architectures (Fixed, Centralised, Distributed); 'MPA' and 'SC' apply only to Centralised platforms; 'LC' and 'FC' apply only to Distributed platforms.",
+        "items": [
+          { "name": "Router", "applies_to_architecture": ["Fixed", "Centralised", "Distributed"], "notes": "Full-chassis reload of the device. Applies to all platforms." },
+          { "name": "RP",     "applies_to_architecture": ["Fixed", "Centralised", "Distributed"], "notes": "Route Processor reload (active or standby), including RP failover. Applies to all platforms; on Fixed devices it functionally reloads the single CPU/control-plane complex." },
+          { "name": "MPA",    "applies_to_architecture": ["Centralised"],                          "notes": "Modular Port Adapter reload. Centralised platforms only (e.g., NCS-560 with swappable MPAs)." },
+          { "name": "SC",     "applies_to_architecture": ["Centralised"],                          "notes": "Switch Card reload. Centralised platforms only; reloads the on-board switch-fabric component (e.g., NCS-560 SC)." },
+          { "name": "LC",     "applies_to_architecture": ["Distributed"],                          "notes": "Line Card reload. Distributed modular chassis only (e.g., ASR-9000 modular, NCS-5500 modular)." },
+          { "name": "FC",     "applies_to_architecture": ["Distributed"],                          "notes": "Fabric Card reload. Distributed modular chassis only; reloads a fabric / switching-fabric card (e.g., ASR-9000 SFC, NCS-5500 modular FC)." }
+        ]
+      }
+    },
+    "ap_catalog_v1": {
+      "description": "List of APs (Automation Profiles). Exactly one primary_ap is mandatory for any defect record (not mandatory for this blank template).",
+      "items": [
+        {
+          "name": "AAA",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "FALSE",
+            "common_scale_dimensions": [
+              "concurrent_sessions"
+            ],
+            "common_triggers": [
+              "login_authz_request",
+              "accounting_update"
+            ],
+            "notes": "AAA primarily involves auth/authz/accounting transactions; traffic generators are usually not required."
+          }
+        },
+        {
+          "name": "BFD",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "TRUE",
+            "common_scale_dimensions": [
+              "bfd_sessions"
+            ],
+            "common_triggers": [
+              "link_flap",
+              "neighbor_down"
+            ],
+            "notes": "BFD is a fast liveness protocol; typical scale is number of sessions; typical triggers are link/adjacency transitions."
+          }
+        },
+        {
+          "name": "BNG",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Bundles",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "EVPN",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Flow Monitor",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [
+            "NETFLOW",
+            "SPAN"
+          ],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [
+              "monitors",
+              "exporters",
+              "sessions"
+            ],
+            "common_triggers": [
+              "config_change",
+              "exporter_failure"
+            ],
+            "notes": "Flow monitoring/export can be validated with or without full traffic depending on symptom; scale includes sessions/exports."
+          }
+        },
+        {
+          "name": "Forwarding",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "GRE",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Install",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "FALSE",
+            "common_scale_dimensions": [
+              "packages",
+              "images",
+              "devices"
+            ],
+            "common_triggers": [
+              "software_upgrade",
+              "rollback",
+              "install_commit"
+            ],
+            "notes": "Install/upgrade defects usually do not require data traffic; key dimensions are image/package counts and upgrade workflows."
+          }
+        },
+        {
+          "name": "IP Infra",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "IPSLA",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "L2",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "L2VPN",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "L3VPN",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Load Balancing",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "LPTS Punt-Inject",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Manageability",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "MPLS",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "TRUE",
+            "common_scale_dimensions": [
+              "labels",
+              "lsp_count"
+            ],
+            "common_triggers": [
+              "label_programming",
+              "path_change"
+            ],
+            "notes": "MPLS forwarding behavior is usually validated under traffic; scale often includes labels/LSPs."
+          }
+        },
+        {
+          "name": "MPLS-TE",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "TRUE",
+            "common_scale_dimensions": [
+              "te_tunnels",
+              "lsp_count"
+            ],
+            "common_triggers": [
+              "reoptimize",
+              "path_failover"
+            ],
+            "notes": "TE tunnel behavior is validated under traffic with failover/reoptimization triggers."
+          }
+        },
+        {
+          "name": "Multicast",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Optical Platform MXP",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Optical Platform OLS",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "PD - Routing BGP",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [
+              "bgp_neighbors",
+              "routes",
+              "path_count"
+            ],
+            "common_triggers": [
+              "session_flap",
+              "route_churn"
+            ],
+            "notes": "Routing protocols often require control-plane events; traffic may be optional depending on the defect."
+          }
+        },
+        {
+          "name": "PD - Routing IGP",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [
+              "neighbors",
+              "routes"
+            ],
+            "common_triggers": [
+              "link_flap",
+              "lsa_lsp_churn"
+            ],
+            "notes": "IGP defects are typically triggered by topology events and convergence."
+          }
+        },
+        {
+          "name": "Platform",
+          "owner_team": "",
+          "notes": "Covers all platform variants (Spitfire/SF, 9k/DNX, etc.). Platform flavor is captured in component tags, not as separate APs.",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "PM",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "QoS",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "TRUE",
+            "common_scale_dimensions": [
+              "policies",
+              "classes",
+              "queues"
+            ],
+            "common_triggers": [
+              "policy_apply_change",
+              "congestion_event"
+            ],
+            "notes": "QoS behavior is exercised under traffic; key dimensions are policy/class/queue scale."
+          }
+        },
+        {
+          "name": "Security",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "SLAPI",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Smart License",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "SR",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "TRUE",
+            "common_scale_dimensions": [
+              "sid_count",
+              "policies"
+            ],
+            "common_triggers": [
+              "policy_failover",
+              "path_change"
+            ],
+            "notes": "Segment Routing is validated under traffic; scale includes SIDs/policies."
+          }
+        },
+        {
+          "name": "SRV6",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "TRUE",
+            "common_scale_dimensions": [
+              "sid_count",
+              "policies"
+            ],
+            "common_triggers": [
+              "policy_failover",
+              "path_change"
+            ],
+            "notes": "SRv6 dataplane typically validated under traffic; scale includes SIDs/policies."
+          }
+        },
+        {
+          "name": "TCAM",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "Timing",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        },
+        {
+          "name": "XR SW Infra",
+          "owner_team": "",
+          "notes": "",
+          "sub_aps": [],
+          "worldly_defaults": {
+            "traffic_required_default": "UNKNOWN",
+            "common_scale_dimensions": [],
+            "common_triggers": [],
+            "notes": ""
+          }
+        }
+      ]
+    },
+    "component_tag_to_ap_v1": {
+      "description": "Initial mapping hints from defect.component.technology.tags[].name to AP name. Owners may extend this mapping table over time.",
+      "map": {
+        "AAA": "AAA",
+        "BFD": "BFD",
+        "BNG": "BNG",
+        "Bundles": "Bundles",
+        "EVPN": "EVPN",
+        "Flow Monitor": "Flow Monitor",
+        "Forwarding": "Forwarding",
+        "GRE": "GRE",
+        "Install": "Install",
+        "IP Infra": "IP Infra",
+        "IPSLA": "IPSLA",
+        "L2": "L2",
+        "L2VPN": "L2VPN",
+        "L3VPN": "L3VPN",
+        "Load Balancing": "Load Balancing",
+        "LPTS Punt-Inject": "LPTS Punt-Inject",
+        "Manageability": "Manageability",
+        "MPLS": "MPLS",
+        "MPLS-TE": "MPLS-TE",
+        "Multicast": "Multicast",
+        "Optical Platform MXP": "Optical Platform MXP",
+        "Optical Platform OLS": "Optical Platform OLS",
+        "PD - Routing BGP": "PD - Routing BGP",
+        "PD - Routing IGP": "PD - Routing IGP",
+        "Platform": "Platform",
+        "Platform - 9k/DNX": "Platform",
+        "Platform - SF": "Platform",
+        "PM": "PM",
+        "QoS": "QoS",
+        "Security": "Security",
+        "SLAPI": "SLAPI",
+        "Smart License": "Smart License",
+        "SR": "SR",
+        "SRV6": "SRV6",
+        "TCAM": "TCAM",
+        "Timing": "Timing",
+        "XR SW Infra": "XR SW Infra",
+        "Forwarding Foundation": "Forwarding"
+      }
+    }
+  },
+  "observable_analysis": {
+    "primary_observable": "",
+    "observable_object": "",
+    "confidence": "",
+    "evidence": []
+  },
+  "evidence_inventory": {
+    "sources_detected": [],
+    "attachments_detected": [],
+    "parsed_evidence": [],
+    "unparsed_evidence": [],
+    "confidence_level": ""
+  },
+  "feedback_loop_contract": {
+    "invariants": [
+      "Primary Observable Rule: testcase primary validation must match primary observable class.",
+      "Evidence-First Rule: evidence inventory must be generated before classification.",
+      "Schema Contract Rule: baseline categorization, failure categorization, and AP mapping must remain present.",
+      "Testcase Contract Rule: no TBD for topology/TG/traffic/trigger/validation/pass-fail; otherwise INFO_REQUIRED."
+    ],
+    "version": "1.0"
+  }
+}

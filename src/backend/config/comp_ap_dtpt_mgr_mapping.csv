@@ -1,0 +1,7 @@
+Component,AP Name,SubAP
+example-aaa-component,AAA,
+example-security-component,Security,
+example-macsec-component,Security,
+example-mpls-component,MPLS,
+example-qos-component,QoS,
+example-bfd-component,BFD,
